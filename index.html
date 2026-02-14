@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Madam vs Shubham: Vela War</title>
+    <style>
+        :root {
+            --madam: #ff0055;
+            --vela: #ffcc00;
+            --bg: #0d0d0d;
+        }
+
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; touch-action: manipulation; }
+
+        body {
+            background: var(--bg);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            overflow: hidden;
+            color: white;
+            perspective: 1200px;
+        }
+
+        .header { text-align: center; border-bottom: 2px solid var(--madam); padding-bottom: 5px; }
+        .header h1 { font-size: 1.3rem; margin: 0; color: var(--madam); text-shadow: 0 0 10px var(--madam); }
+        .header p { font-size: 0.7rem; color: var(--vela); margin: 5px 0 0; font-weight: bold; }
+
+        /* 3D Battle Arena */
+        .arena-3d {
+            width: 280px;
+            height: 280px;
+            transform-style: preserve-3d;
+            transform: rotateX(45deg) rotateZ(-15deg);
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .ludo-grid {
+            width: 100%; height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            background: #1a1a1a;
+            border: 4px solid white;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        .cell {
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .madam-cell { background: var(--madam); color: white; }
+        .vela-cell { background: var(--vela); color: black; }
+        .center-circle { background: white; color: black; border-radius: 50%; transform: scale(0.7); font-size: 1rem; }
+
+        /* Controls */
+        .controls { width: 85%; display: flex; flex-direction: column; align-items: center; }
+
+        .dice {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: black;
+            box-shadow: 0 10px 0 #999, 0 15px 30px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+
+        .dice:active { transform: translateY(8px); box-shadow: 0 2px 0 #999; }
+
+        .roast-panel {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            width: 100%;
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1rem;
+            border-left: 8px solid var(--madam);
+            backdrop-filter: blur(10px);
+        }
+
+        .rolling { animation: cubeSpin 0.4s infinite linear; }
+        @keyframes cubeSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>LUDO FUNNY GAME</h1>
+        <p>DIRECTED BY TUGGU | 2026</p>
+    </div>
+
+    <div class="arena-3d" id="arena">
+        <div class="ludo-grid">
+            <div class="cell madam-cell">ANKITA MADAM</div>
+            <div class="cell">OVER-ACTING</div>
+            <div class="cell vela-cell">SHUBHAM</div>
+            <div class="cell">VELA FRIEND</div>
+            <div class="cell center-circle">ZONE</div>
+            <div class="cell">NO JOB</div>
+            <div class="cell vela-cell">ONLY TALKS</div>
+            <div class="cell">FRIENDZONE</div>
+            <div class="cell madam-cell">THE BOSS</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="dice" id="dice" onclick="roll()">🎲</div>
+        <div class="roast-panel" id="msg">
+            Ankita Madam, dice phenko aur "shubham sir" ki beizzati suno!
+        </div>
+    </div>
+
+<script>
+    // Audio Chimes
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function beep(f, d) {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
+    const funnyRoasts = [
+        "1: <b>Ankita Madam:</b> 'Shubham, tumhara career aur Ludo ki goti... dono hi ghar se bahar nahi nikal rahe!' 😂🏠",
+        "2: <b>Shubham:</b> 'Madam, aapka attitude itna hai ki Google Maps bhi aapka dimaag nahi dhund sakta!' 🗺️🧐",
+        "3: <b>Ankita Madam:</b> 'Shubham, tum toh itne vele ho ki agar Ludo mein 6 aaya toh bhi tum hilte nahi!' 🐢🎲",
+        "4: <b>Shubham:</b> 'Ankita Madam, aapki acting dekh ke toh Nawazuddin Siddiqui bhi darr jaye!' 🎭😱",
+        "5: <b>Ankita Madam:</b> 'Shubham, tumhara naam hi kismat mein Friend-zone likha hua hai, badal nahi sakte!' 📉💔",
+        "6: <b>JACKPOT:</b> Ankita Madam khush hui! Shubham, abhi madam ke liye cold drink lao varna beizzati jaari rahegi! 🥤✨"
+    ];
+
+    function roll() {
+        const dice = document.getElementById('dice');
+        const msg = document.getElementById('msg');
+        const arena = document.getElementById('arena');
+
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (navigator.vibrate) navigator.vibrate(50);
+
+        beep(200, 0.2);
+        dice.classList.add('rolling');
+        msg.innerText = "System thinking of a roast...";
+
+        setTimeout(() => {
+            dice.classList.remove('rolling');
+            const res = Math.floor(Math.random() * 6);
+            dice.innerText = (res + 1);
+            msg.innerHTML = funnyRoasts[res];
+
+            beep(400 + (res * 100), 0.4);
+
+            // 3D Interaction
+            if (res % 2 === 0) {
+                arena.style.transform = "rotateX(20deg) rotateZ(30deg) scale(1.1)";
+            } else {
+                arena.style.transform = "rotateX(20deg) rotateZ(-30deg) scale(1.1)";
+            }
+        }, 650);
+    }
+</script>
+
+</body>
+</html>
